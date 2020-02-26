@@ -148,10 +148,19 @@ def save_tag_book(cur, tag_info, book_info_list):
 def make_sql(book_info_list):
     str_list = []
     for book_info in book_info_list:
-        string = "(%s,'%s','%s','%s','%s','%s',%s,'%s',%s,%s)" %(book_info['id'], book_info['book_name'], book_info['author'], book_info['publisher'], book_info['translator'], book_info['publish_date'], book_info['page_num'], book_info['isbn'], book_info['score'], book_info['rating_num'])
+        string = "(%s,'%s','%s','%s','%s'," \
+                 "'%s',%s,'%s',%s,%s," \
+                 "'%s','%s','%s','%s','%s'," \
+                 "%s,%s,%s,%s,%s,%s)" \
+                 %(book_info['id'], book_info['book_name'], book_info['author'], book_info['publisher'], book_info['translator'],\
+                   book_info['publish_date'],book_info['page_num'], book_info['isbn'], book_info['score'], book_info['rating_num'],\
+                   book_info['comments1'],book_info['comments2'],book_info['comments3'],book_info['comments4'],book_info['comments5'],\
+                   book_info['stars_5'], book_info['stars_4'], book_info['stars_3'], book_info['stars_2'],book_info['stars_1'],book_info['total_rating_people'])
         str_list.append(string)
     strings = ','.join(str_list)
-    sql = "REPLACE INTO `book_info`(`id`, `book_name`, `author`, `publisher`, `translator`, `publish_date`, `page_num`, `isbn`, `score`, `rating_num`) VALUES %s" % strings
+    sql = "REPLACE INTO `book_info`(`id`, `book_name`, `author`, `publisher`, `translator`, `publish_date`, `page_num`, `isbn`, `score`, `rating_num`,`comments1`,`comments2`,`comments3`,`comments4`,`comments5`,`stars_5`,`stars_4`,`stars_3`,`stars_2`,`stars_1`,`total_rating_people`) VALUES %s" % strings
+
+
     # logging.info("sql:%s" % sql)
     return sql
 
@@ -281,6 +290,7 @@ def fetch_book_info(book_url, soup):
     if total_comments!=None:
         total_num=re.findall(r'-?\d+\.?\d*e?-?\d*?', str(total_comments))
         book_info['total_rating_people']=int(total_num[0])
+    print(book_info)
     return book_info
 
 def disconnect_router():
