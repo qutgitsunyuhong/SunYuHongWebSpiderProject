@@ -225,7 +225,7 @@ def fetch_book_info(book_url, soup):
         #print "isbn:",isbn_match.group(1), type(isbn_match.group(1))
         book_info['isbn'] = isbn_match.group(1)
     # get score
-    score_ele = body.find('strong', attrs = {'class':'ll rating_num '})
+    score_ele = body.find('strong', attrs = {'class':'ll rating_num','property':'v:average'})
 
     if score_ele != None:
         try:
@@ -234,6 +234,10 @@ def fetch_book_info(book_url, soup):
             book_info['score'] = score
         except ValueError:
             pass
+    #get 1-5 precentage
+
+    stars_match=body.find('span',attrs = {'class':'rating_per'})
+
     # get rating num
     rt_num_ele = body.find('a', attrs = {'class':'rating_people'})
     if rt_num_ele != None and rt_num_ele.span != None:
