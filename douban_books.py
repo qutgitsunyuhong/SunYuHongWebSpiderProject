@@ -164,7 +164,8 @@ def strip_blank(string):
 def fetch_book_info(book_url, soup):
     book_info = {'id':0, 'book_name':'NULL', 'author':'NULL', 'publisher':'NULL', 
         'translator':'NULL', 'publish_date':'NULL', 'page_num':0, 'isbn':'NULL',
-        'score':0.0, 'rating_num':0,'comments1':'NULL','comments2':'NULL','comments3':'NULL','comments4':'NULL','comments5':'NULL'}
+        'score':0.0, 'rating_num':0,'comments1':'NULL','comments2':'NULL','comments3':'NULL','comments4':'NULL','comments5':'NULL',
+        'stars_5':0.0,'stars_4':0.0,'stars_3':0.0,'stars_2':0.0,'stars_1':0.0,"total_rating_people":0}
     body = soup.body
     # get book_name
     wrapper = body.find('div', attrs = {'id':'wrapper'})
@@ -192,7 +193,7 @@ def fetch_book_info(book_url, soup):
         #print "author:",author, type(author)
         book_info['author'] = author
     # get publisher
-    pu_pattern = re.compile(r"出版社:</span>(.*?)<br/>")
+    pu_pattern = re.compile(r"出版社:</span>(.*?)<br/?>")
     pu_match = re.search(pu_pattern, text)
     if pu_match:
         publisher = strip_blank(pu_match.group(1))
@@ -206,7 +207,7 @@ def fetch_book_info(book_url, soup):
         #print "translator:",translator, type(translator)
         book_info['translator'] = translator
     # get publish_date
-    date_pattern = re.compile(r"出版年:</span>(.*?)<br/>")
+    date_pattern = re.compile(r"出版年:</span>(.*?)<br/?>")
     data_match = re.search(date_pattern, text)
     if data_match:
         publish_date = strip_blank(data_match.group(1))
@@ -219,7 +220,7 @@ def fetch_book_info(book_url, soup):
         #print "page_num:",int(num_match.group(1))
         book_info['page_num'] = int(num_match.group(1))
     # get isbn
-    isbn_pattern = re.compile(r"ISBN:</span>.*?(\d+)<br/>")
+    isbn_pattern = re.compile(r"ISBN:</span>.*?(\d+)<br/?>")
     isbn_match = re.search(isbn_pattern, text)
     if isbn_match:
         #print "isbn:",isbn_match.group(1), type(isbn_match.group(1))
@@ -235,8 +236,19 @@ def fetch_book_info(book_url, soup):
         except ValueError:
             pass
     #get 1-5 precentage
+    stars_match=body.find_all('span',attrs = {'class':'rating_per'})
+    if stars_match!=None:
+        try:
+            # stars_nums=float(stars_match.string)
+            temp = re.findall(r'-?\d+\.?\d*e?-?\d*?', str(stars_match))
+            book_info['stars_5'] = float(temp[0])
+            book_info['stars_4'] = float(temp[1])
+            book_info['stars_3'] = float(temp[2])
+            book_info['stars_2'] = float(temp[3])
+            book_info['stars_1'] = float(temp[4])
 
-    stars_match=body.find('span',attrs = {'class':'rating_per'})
+        except ValueError:
+            pass
 
     # get rating num
     rt_num_ele = body.find('a', attrs = {'class':'rating_people'})
@@ -263,11 +275,12 @@ def fetch_book_info(book_url, soup):
     book_info['comments3']=commet_match[2]
     book_info['comments4']=commet_match[3]
     book_info['comments5']=commet_match[4]
+    #获取总的评论数量
 
-
-
-
-
+    total_comments = body.find_all('a',attrs = {'href':'collections',"class":"rating_people"})
+    if total_comments!=None:
+        total_num=re.findall(r'-?\d+\.?\d*e?-?\d*?', str(total_comments))
+        book_info['total_rating_people']=int(total_num[0])
     return book_info
 
 def disconnect_router():
