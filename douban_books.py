@@ -10,12 +10,12 @@ import re
 import sys
 #import pymysql
 import json
-import imp
+#import imp
 import ssl
 import os
 
-reload(sys)
-sys.setdefaultencoding('utf-8')
+# reload(sys)
+# sys.setdefaultencoding('utf-8')
 
 # state of tag_info
 FINISHED = 1
@@ -85,7 +85,7 @@ def fetch_books(conn, tag_info):
 
         for times in range(1, MAX_TRY_TIMES):
             try:
-                content = get_html(url, headers)
+                content = get_html(url.encode("utf-8"), headers).decode("utf-8")
                 soup = BeautifulSoup(content, 'html.parser')
                 ul = soup.body.find('ul', attrs = {'class':'subject-list'})
                 li_list = ul.find_all('li')
@@ -164,12 +164,12 @@ def strip_blank(string):
 def fetch_book_info(book_url, soup):
     book_info = {'id':0, 'book_name':'NULL', 'author':'NULL', 'publisher':'NULL', 
         'translator':'NULL', 'publish_date':'NULL', 'page_num':0, 'isbn':'NULL',
-        'score':0.0, 'rating_num':0}
+        'score':0.0, 'rating_num':0,'comments1':'NULL','comments2':'NULL','comments3':'NULL','comments4':'NULL','comments5':'NULL'}
     body = soup.body
     # get book_name
     wrapper = body.find('div', attrs = {'id':'wrapper'})
     book_name = wrapper.h1.span.string
-    book_name = book_name.encode('utf-8')
+    # book_name = book_name.decode('utf-8')
     book_name = strip_blank(book_name)
     book_info['book_name'] = book_name
     #print "book_name:",book_name,type(book_name)
@@ -240,8 +240,30 @@ def fetch_book_info(book_url, soup):
         rt_num = int(rt_num_ele.span.string)
         #print rt_num
         book_info['rating_num'] = rt_num
-    str(book_info).decode("string_escape")
-    print (str(book_info).decode("string_escape"))
+    # str(book_info).decode("string_escape")
+
+    # pu_pattern = re.compile(r"出版社:</span>(.*?)<br/>")
+
+    #爬取评论以及评分
+    comment = body.find_all('div',attrs={'id':'comments','class': 'comment-list hot show'})
+    #comment = body.find("comment-content")
+    # comment_text = str(comment).encode('utf-8')
+    '''comments_pattern=re.compile(r'<p class="comment-content">(.*?)</p>',re.S)
+    comments_match=re.search(comments_pattern, str(comment))'''
+    # comments_pattern = comment.split('<p class="comment-content">','</p>')
+    #print(comments_match.group(0),comments_match.group(1))
+    #print (str(book_info).decode("string_escape"))
+    commet_match=re.findall(r'<span class="short">(.*?)</span>',str(comment))
+    book_info['comments1']=commet_match[0]
+    book_info['comments2']=commet_match[1]
+    book_info['comments3']=commet_match[2]
+    book_info['comments4']=commet_match[3]
+    book_info['comments5']=commet_match[4]
+
+
+
+
+
     return book_info
 
 def disconnect_router():
