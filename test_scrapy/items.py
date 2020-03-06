@@ -11,13 +11,12 @@ import scrapy
 class Douban_ScrapyItem(scrapy.Item):
     # define the fields for your item here like:
     #   #排名
-    ranking = scrapy.Field()
-    # 电影名称
-    movie_name = scrapy.Field()
-    # 评分
-    score = scrapy.Field()
-    # 评论人数
-    score_num = scrapy.Field()
+    # ranking = scrapy.Field()
+    # # 电影名称
+    # movie_name = scrapy.Field()
+    #
+    # # 评论人数
+    # score_num = scrapy.Field()
 
 
     id = scrapy.Field()
@@ -40,4 +39,5 @@ class Douban_ScrapyItem(scrapy.Item):
     stars_3 = scrapy.Field()
     stars_2 = scrapy.Field()
     stars_1 = scrapy.Field()
-    total_rating_people = scrapy.Field()
+    kind = scrapy.Field()
+

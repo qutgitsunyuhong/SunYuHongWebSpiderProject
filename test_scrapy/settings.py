@@ -30,7 +30,9 @@ AUTOTHROTTLE_MAX_DELAY = 60.0  # 在高延迟情况下最大的下载延迟(单�
 
 AUTOTHROTTLE_DEBUG = True  # 起用AutoThrottle调试(debug)模式，展示每个接收到的response。 您可以通过此来查看限速参数是如何实时被调整的
 
-
+ITEM_PIPELINES = {
+'test_scrapy.pipelines.TestScrapyPipeline': 300,
+}
 
 # Configure maximum concurrent requests performed by Scrapy (default: 16)
 #CONCURRENT_REQUESTS = 32
