@@ -1,0 +1,240 @@
+<!--index.html-->
+{% extends 'base.html' %}
+{% load staticfiles %}
+{% block title %}
+    豆瓣书评可视化系统
+{% endblock %}
+{% block headmessage %}
+    <div class="panel panel-info">
+        <div class="panel-heading">
+            <h3 class="panel-title" style="font-family: 微软雅黑,serif;">类型列表</h3>
+        </div>
+        <div class="panel-body">
+            Pursue what you want to get！Just do it!
+        </div>
+    </div>
+{% endblock %}
+{% block content %}
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <form class="form-inline" role="form" method="get" action='/job/search/'>
+                <div class="form-group">
+                    <label for="id_job_type">类型</label>
+                    <select id="id_job_type" name="BookType" class="form-control">
+                        <option value="所有">所有</option>
+                        <option value="小说">小说</option>
+                        <option value="外国文学">外国文学</option>
+                        <option value="文学">文学</option>
+                        <option value="经典">经典</option>
+                        <option value="中国文学">中国文学</option>
+                        <option value="随笔">随笔</option>
+                        <option value="日本文学">日本文学</option>
+                        <option value="散文">散文</option>
+                        <option value="村上春树">村上春树</option>
+                        <option value="诗歌">诗歌</option>
+                        <option value="童话">童话</option>
+                        <option value="名著">名著</option>
+                        <option value="儿童文学">儿童文学</option>
+                        <option value="古典文学">古典文学</option>
+                        <option value="余华">余华</option>
+                        <option value="鲁迅">鲁迅</option>
+                        <option value="诗词">诗词</option>
+                        <option value="张爱玲">张爱玲</option>
+                        <option value="钱钟书">钱钟书</option>
+                        <option value="茨威格">茨威格</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="id_job_name">名称</label>
+                    <input id="id_job_name" maxlength="30" name="BookName" type="text" class="form-control">
+                </div>
+                <button type="submit" class="btn btn-default">search</button>
+            </form>
+        </div>
+        <div class="panel-body">
+            <ul id="myTab" class="nav nav-tabs">
+                <li class="active"><a href="#job" data-toggle="tab">工作列表</a></li>
+                <li><a href="#data" data-toggle="tab">数据分析</a></li>
+            </ul>
+            <div id="myTabContent" class="tab-content">
+                <div class="tab-pane fade" id="data">
+                    <div class="row">
+                        <div class="col-md-9">
+                            <div id="main" style="width: 1080px;height:640px;"></div>
+                            <script type="text/javascript">
+                                var myChart = echarts.init(document.getElementById('main'));
+                                var data = [
+                                    [{% for book in books_novel %}
+                                        [{{ book.book_rating_num|floatformat }}, {{ book.book_score|floatformat }}, {{ book.book_stars5|floatformat }}, '{{ book.kind }}', 1990]
+                                        {% if not forloop.last %}, {% endif %}{% endfor %}],
+                                    [{% for book in books_foreign %}
+                                        [{{ book.book_rating_num|floatformat }}, {{ book.book_score|floatformat }}, {{ book.book_stars5|floatformat }}, '{{ book.kind }}', 2015]
+                                        {% if not forloop.last %}, {% endif %}{% endfor %}]
+                                ];
+                                {#注意：以上数据在使用时必须进行四舍五入的小数转换#}
+                                var schema = [
+                                    {name: '评论数量', index: 0, text: '评论数量'},
+                                    {name: '评分', index: 1, text: '评分'},
+                                    {name: '5分数量', index: 2, text: '5分数量'}
+                                ];
+                                option = {
+                                    backgroundColor: new echarts.graphic.RadialGradient(0.3, 0.3, 0.8, [{
+                                        offset: 0,
+                                        color: '#f7f8fa'
+                                    }, {
+                                        offset: 1,
+                                        color: '#cdd0d5'
+                                    }]),
+                                    title: {
+                                        text: '评论数、评分分析',
+                                        subtext: '来自-互联网',
+                                        x: 'center'
+                                    },
+                                    tooltip: {
+                                        padding: 10,
+                                        backgroundColor: '#222',
+                                        borderColor: '#777',
+                                        borderWidth: 1,
+                                        formatter: function (obj) {
+                                            var value = obj.value;
+                                            return obj.seriesName + ' ' + value[3] + '<br>'
+                                                + schema[0].text + '：' + value[0] + '<br>'
+                                                + schema[1].text + '：' + value[1] + '<br>'
+                                                + schema[2].text + '：' + value[2] + '<br>'
+                                        }
+                                    },
+                                    legend: {
+                                        right: 10,
+                                        data: ['小说', '外国文学']
+                                    },
+                                    xAxis: {
+                                        name: '评论数（条）',
+                                        splitLine: {
+                                            lineStyle: {
+                                                type: 'dashed'
+                                            }
+                                        }
+                                    },
+                                    yAxis: {
+                                        name: '评分',
+                                        splitLine: {
+                                            lineStyle: {
+                                                type: 'dashed'
+                                            }
+                                        },
+                                        scale: true
+                                    },
+                                    series: [{
+                                        name: '小说',
+                                        data: data[0],
+                                        type: 'scatter',
+                                        symbolSize: function (data) {
+                                            return Math.pow(data[2] + 2, 3) / 5000;
+                                        },
+                                        label: {
+                                            emphasis: {
+                                                show: true,
+                                                formatter: function (param) {
+                                                    return param.data[3];
+                                                },
+                                                position: 'top'
+                                            }
+                                        },
+                                        itemStyle: {
+                                            normal: {
+                                                shadowBlur: 10,
+                                                shadowColor: 'rgba(120, 36, 50, 0.5)',
+                                                shadowOffsetY: 5,
+                                                color: new echarts.graphic.RadialGradient(0.4, 0.3, 1, [{
+                                                    offset: 0,
+                                                    color: 'rgb(251, 118, 123)'
+                                                }, {
+                                                    offset: 1,
+                                                    color: 'rgb(204, 46, 72)'
+                                                }])
+                                            }
+                                        }
+                                    }, {
+                                        name: '外国文学',
+                                        data: data[1],
+                                        type: 'scatter',
+                                        symbolSize: function (data) {
+                                            return Math.pow(data[2] + 2, 3) / 5000;
+                                        },
+                                        label: {
+                                            emphasis: {
+                                                show: true,
+                                                formatter: function (param) {
+                                                    return param.data[3];
+                                                },
+                                                position: 'top'
+                                            }
+                                        },
+                                        itemStyle: {
+                                            normal: {
+                                                shadowBlur: 10,
+                                                shadowColor: 'rgba(25, 100, 150, 0.5)',
+                                                shadowOffsetY: 5,
+                                                color: new echarts.graphic.RadialGradient(0.4, 0.3, 1, [{
+                                                    offset: 0,
+                                                    color: 'rgb(129, 227, 238)'
+                                                }, {
+                                                    offset: 1,
+                                                    color: 'rgb(25, 183, 207)'
+                                                }])
+                                            }
+                                        }
+                                    }]
+                                };
+                                // 使用刚指定的配置项和数据显示图表。
+                                myChart.setOption(option);
+                            </script>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-pane fade in active" id="job">
+                    <div class="table-responsive">
+                        {% load pagination_tags %}
+                        {% autopaginate books %}
+                        <table class="table table-hover">
+                            <thead>
+                            <tr>
+                                <th>序号</th>
+                                <th>图书名称</th>
+                                <th>作者</th>
+                                <th>出版社</th>
+                                <th>评分</th>
+                                <th>评论数量</th>
+                                <th>更多</th>
+                            </tr>
+                            </thead>
+                            {% for book in books %}
+                                <tbody>
+                                <tr>
+{#                                    <td>{{ forloop.counter }}</td>#}
+{#                                    <td>{{ book.kind }}</td>#}
+{#                                    <td><a href="/job_detail/{{ book.book_name }}">{{ book.book_name }}</a></td>#}
+{#                                    <td><a href="{{ job.job_url }}" target="_blank">拉勾网</a></td>#}
+                                    <td>{{ forloop.counter }}</td>
+                                    <td><a href="https://book.douban.com/subject/{{ book.id }}">{{ book.book_name }}</a></td>
+                                    <td>{{ book.book_author }}</td>
+                                    <td>{{ book.book_publisher }}</td>
+                                    <td>{{ book.book_score }}</td>
+                                    <td>{{ book.book_rating_num }}</td>
+{#                                    <td>{{ "详细信息" }}</td>#}
+                                    <td><a href="job_detail/{{ book.id }}">详细信息</a></td>
+                                </tr>
+                                </tbody>
+                            {% endfor %}
+                        </table>
+                        {% paginate %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+{% endblock %}

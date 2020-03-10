@@ -34,7 +34,7 @@ class TestScrapyPipeline(object):
         string = "(%s,'%s','%s','%s','%s'," \
                  "'%s',%s,'%s',%s,%s," \
                  "'%s','%s','%s','%s','%s'," \
-                 "%s,%s,%s,%s,%s,%s)" \
+                 "%s,%s,%s,%s,%s,'%s',null)" \
                  % (item['id'], item['book_name'], item['author'], item['publisher'],\
                     item['translator'], \
                     item['publish_date'], item['page_num'], item['isbn'], item['score'],\
@@ -44,7 +44,7 @@ class TestScrapyPipeline(object):
                     item['stars_5'], item['stars_4'], item['stars_3'], item['stars_2'],\
                     item['stars_1'],item['kind'])
         sql = "INSERT INTO book_info(id, book_name, author, publisher, translator, publish_date, page_num, isbn,score, rating_num" \
-              ",comments1,comments2,comments3,comments4,comments5,stars_5,stars_4,stars_3,stars_2,stars_1,kind) VALUES %s" % string
+              ",comments1,comments2,comments3,comments4,comments5,stars_5,stars_4,stars_3,stars_2,stars_1,kind,No) VALUES %s" % string
         # insert_sql = """insert into book_info(id,book_name,author,publisher,translator,publish_date,page_num,isbn,score,rating_num,comments1,comments2,comments3,comments4,comments5,stars_5,stars_4,stars_3,stars_2,stars_1)\
         # VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"""
         # 执行插入数据到数据库操作

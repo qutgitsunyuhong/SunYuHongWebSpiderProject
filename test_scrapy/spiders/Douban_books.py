@@ -28,14 +28,14 @@ class Book_Sipder(scrapy.spiders.Spider):
         "https://book.douban.com/tag/村上春树"
         "https://book.douban.com/tag/诗歌"
     ]'''
-    tags='小说'
+    tags='外国文学'
     pages = 0
     custom_settings = {
         "COOKIES_ENABLED": True,
         "AUTOTHROTTLE_ENABLED": True,
     }
-    kind_define={'小说':1,'外国文学':2,'文学':3,'经典':4,'中国文学':5,'随笔':6,'日本文学':7,'散文':8,'村上春树':9,'诗歌':10,
-                 '童话':11,'名著':12,'儿童文学':13,'古典文学':14,'余华':15,'鲁迅':16,'诗词':17,'张爱玲':18,'钱钟书':19,'茨威格':20}
+    kind_define={'小说':'小说','外国文学':'外国文学','文学':'文学','经典':'经典','中国文学':'中国文学','随笔':'随笔','日本文学':'日本文学','散文':'散文','村上春树':'村上春树','诗歌':'诗歌',
+                 '童话':'童话','名著':'名著','儿童文学':'儿童文学','古典文学':'古典文学','余华':'余华','鲁迅':'鲁迅','诗词':'诗词','张爱玲':'张爱玲','钱钟书':'钱钟书','茨威格':'茨威格'}
 
 
 
@@ -55,7 +55,11 @@ class Book_Sipder(scrapy.spiders.Spider):
         try:
             f = self.tags+".txt"
             fp = open(f,'r')
-            self.pages = int(fp.readline())
+            result = fp.readline()
+            if(result!=''):
+                self.pages = int(result)
+            else :
+                self.pages = 0
         except IOError:
             print("No such file or directory!Creating a file")
             self.pages = 0
