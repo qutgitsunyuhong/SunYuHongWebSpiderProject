@@ -11,95 +11,68 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.shortcuts import render
+from django.utils import timezone
 from django.http import HttpResponse, HttpResponseRedirect
 # from .models import jobList, java_job, learning
 from datetime import datetime
 from django.shortcuts import redirect
 from .forms import   BookForm
-from .models import bookList
+from .models import bookList,VisitNumber,Userip,DayNumber
 import re
-# class UserForm(forms.Form):
-#     username = forms.CharField(label='用户名',max_length=100)
-#     password = forms.CharField(label='密  码',widget=forms.PasswordInput())
+
+
+# 自定义的函数，不是视图
+def change_info(request):  # 修改网站访问量和访问ip等信息
+    # 每一次访问，网站总访问次数加一
+    count_nums = VisitNumber.objects.filter(id=1)
+    if count_nums:
+        count_nums = count_nums[0]
+        count_nums.count += 1
+    else:
+        count_nums = VisitNumber()
+        count_nums.count = 1
+    count_nums.save()
+    print("执行到change_info内部")
+    # 记录访问ip和每个ip的次数
+    if 'HTTP_X_FORWARDED_FOR' in request.META:  # 获取ip
+        client_ip = request.META['HTTP_X_FORWARDED_FOR']
+
+        client_ip = client_ip.split(",")[0]  # 所以这里是真实的ip
+    else:
+        client_ip = request.META['REMOTE_ADDR']  # 这里获得代理ip
+    # print(client_ip)
+
+    ip_exist = Userip.objects.filter(ip=str(client_ip))
+    if ip_exist:  # 判断是否存在该ip
+        uobj = ip_exist[0]
+        uobj.count += 1
+    else:
+        uobj = Userip()
+        uobj.ip = client_ip
+        uobj.count = 1
+    uobj.save()
+
+    # 增加今日访问次数
+    date = timezone.now().date()
+    today = DayNumber.objects.filter(day=date)
+    if today:
+        temp = today[0]
+        temp.count += 1
+    else:
+        temp = DayNumber()
+        temp.dayTime = date
+        temp.count = 1
+    temp.save()
+
 
 def index(request):
-    return render(request, 'index.html')
+    change_info(request)
+    return render(request, 'mainpage/index.html')
 
-
-# def login(request):
-#
-#     user = request.POST['username']
-#     password = request.POST['password']
-#     result = models.objects.get(username=user,password=password)
-#     if not result:
-#         return HttpResponseRedirect('/registerView/')
-#     else :
-#        request.session['user'] = user
-#        return HttpResponseRedirect('/index/')
-
-# def regist(request):
-#     if request.method == 'POST':
-#         uf = UserForm(request.POST)  # 包含用户名和密码
-#         if uf.is_valid():
-#             # 获取表单数据
-#             username = uf.cleaned_data['username']  # cleaned_data类型是字典，里面是提交成功后的信息
-#             password = uf.cleaned_data['password']
-#             # 添加到数据库
-#             # registAdd = User.objects.get_or_create(username=username,password=password)
-#             registAdd = User.objects.create_user(username=username, password=password)
-#             # print registAdd
-#             if registAdd == False:
-#                 return render(request, 'share1.html', {'registAdd': registAdd, 'username': username})
-#
-#             else:
-#                 # return HttpResponse('ok')
-#                 return render(request, 'share1.html', {'registAdd': registAdd})
-#                 # return render_to_response('share.html',{'registAdd':registAdd},context_instance = RequestContext(request))
-#     else:
-#         # 如果不是post提交数据，就不传参数创建对象，并将对象返回给前台，直接生成input标签，内容为空
-#         uf = UserForm()
-#     # return render_to_response('regist.html',{'uf':uf},context_instance = RequestContext(request))
-#     return render(request, 'regist1.html', {'uf': uf})
-#
-#
-# def login(request):
-#     if request.method == 'POST':
-#         username = request.POST.get('username')
-#         password = request.POST.get('password')
-#         print (username, password)
-#         re = auth.authenticate(username=username, password=password)  # 用户认证
-#         if re is not None:  # 如果数据库里有记录（即与数据库里的数据相匹配或者对应或者符合）
-#             auth.login(request, re)  # 登陆成功
-#             return redirect('/', {'user': re})  # 跳转--redirect指从一个旧的url转到一个新的url
-#         else:  # 数据库里不存在与之对应的数据
-#             return render(request, 'login.html', {'login_error': '用户名或密码错误'})  # 注册失败
-#     return render(request, 'login.html')
-
-
-
-# def article(request):
-    # article_list = Article.objects.all()
-    # print article_list
-    # print type(article_list)
-    # QuerySet是一个可遍历结构，包含一个或多个元素，每个元素都是一个Model实例
-    # QuerySet类似于Python中的list，list的一些方法QuerySet也有，比如切片，遍历。
-    # 每个Model都有一个默认的manager实例，名为objects，QuerySet有两种来源：通过manager的方法得到、通过QuerySet的方法得到。mananger的方法和QuerySet的方法大部分同名，同意思，如filter(),update()等，但也有些不同，如manager有create()、get_or_create()，而QuerySet有delete()等
-    # return render(request, 'article.html', {'article_list': article_list})
-    # print("none")
-
-# def detail(request, id):
-    # print id
-    # try:
-    #     article = Article.objects.get(id=id)
-    #     # print type(article)
-    # except Article.DoesNotExist:
-    #     raise Http404
-    # return render(request, 'detail.html', locals())
-    # print("none")
-#----------------------------------------------------------------------------
 
 def homepage(request):
     user = request.user if request.user.is_authenticated() else None
+    change_info(request)
     books = bookList.objects.filter()
     books_novel = bookList.objects.filter(kind='小说')
     books_foreign = bookList.objects.filter(kind='外国文学')
@@ -118,31 +91,9 @@ def homepage_search(request):
     BookType = request.GET['BookDec']
     if BookType == '所有':
         jobs = bookList.objects.filter(job_name__icontains=BookName, isGetDetail=1)
-        # jobs_tech = bookList.objects.filter(job_name__icontains=BookName, isGetDetail=1, job_type='技术')
-        # jobs_untech = bookList.objects.filter(job_name__icontains=BookName, isGetDetail=1, job_type='非技术')
     else:
         jobs = bookList.objects.filter(job_name__icontains=BookName, job_dec=BookType)
-        # jobs_tech = bookList.objects.filter(job_name__icontains=BookName, job_dec=BookType)
-        # jobs_untech = bookList.objects.filter(job_name__icontains=BookName, job_dec=BookType)
     return render(request, 'mainpage/index.html', locals())
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 def signup(request):
     # if request.user.is_authenticated():  # 已经登陆过的账号
@@ -254,21 +205,24 @@ def book_detail(request, bookid):
     total_book = bookList.objects.filter()
 
     # 0-6
-    book_socre_0_6 = bookList.objects.filter(book_score__in=[0, 6])
+    book_socre_0_6 = bookList.objects.filter(book_score__range =[0, 6])
     book_socre_0_6_num = book_socre_0_6.count()
     #6-7
-    book_socre_6_7 = bookList.objects.filter(book_score__in=[6,7])
+    book_socre_6_7 = bookList.objects.filter(book_score__range =[6,7])
     book_socre_6_7_num=book_socre_6_7.count()
     #7-8
-    book_socre_7_8 = bookList.objects.filter(book_score__in=[7, 8])
+    book_socre_7_8 = bookList.objects.filter(book_score__range =[7, 8])
     book_socre_7_8_num = book_socre_7_8.count()
     #8-9
-    book_socre_8_9 = bookList.objects.filter(book_score__in=[8, 9])
+    book_socre_8_9 = bookList.objects.filter(book_score__range =[8, 9])
     book_socre_8_9_num = book_socre_8_9.count()
     #9-10
-    book_socre_9_10 = bookList.objects.filter(book_score__in=[9, 10])
+    book_socre_9_10 = bookList.objects.filter(book_score__range =[9, 10])
     book_socre_9_10_num = book_socre_9_10.count()
-
+    print("----------------------")
+    print(book_socre_0_6_num,book_socre_6_7_num,book_socre_7_8_num,book_socre_8_9_num,book_socre_9_10_num)
+    print("----------------------")
+    print(book_detail_name.book_stars5, book_detail_name.book_stars4, book_detail_name.book_stars3, book_detail_name.book_stars2, book_detail_name.book_stars1)
     content = {
             'user': 'user',
             'job_detail': 'job_detail',
