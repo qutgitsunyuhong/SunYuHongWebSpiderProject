@@ -20,7 +20,7 @@ from .forms import   BookForm
 from .models import bookList,VisitNumber,Userip,DayNumber
 import re
 import MySQLdb
-import pandas as pd
+# import pandas as pd
 import jieba
 import csv
 from collections import Counter
@@ -56,7 +56,7 @@ def change_info(request):  # 修改网站访问量和访问ip等信息
         uobj.count = 1
     uobj.save()
 
-    # 增加今日访问次数
+    # 增加每天访问次数
     date = timezone.now().date()
     today = DayNumber.objects.filter(day=date)
     if today:
@@ -69,9 +69,6 @@ def change_info(request):  # 修改网站访问量和访问ip等信息
     temp.save()
 
 
-def index(request):
-    change_info(request)
-    return render(request, 'mainpage/index.html')
 
 
 def homepage(request):
@@ -80,25 +77,30 @@ def homepage(request):
     books = bookList.objects.filter()
     books_novel = bookList.objects.filter(kind='小说')
     books_foreign = bookList.objects.filter(kind='外国文学')
+    # books_china=bookList.objects.filter(kind='中国文学')
+    # books_children=bookList.objects.filter(kind='儿童文学')
+    books_code= bookList.objects.filter(kind='编程')
     Count = VisitNumber.objects.filter(id=1)
     Count_num=Count[0].count
     print(Count_num)
+    print("--------------------------")
+    print(books.count())
     form = BookForm()
     return render(request, 'mainpage/index.html', locals())
 
 
 
-def homepage_search(request):
-    user = request.user if request.user.is_authenticated() else None
-    form = BookForm()
-
-    BookName = request.GET['BookName']
-    BookType = request.GET['BookDec']
-    if BookType == '所有':
-        jobs = bookList.objects.filter(job_name__contains=BookName, isGetDetail=1)
-    else:
-        jobs = bookList.objects.filter(job_name__contains=BookName, job_dec=BookType)
-    return render(request, 'mainpage/index.html', locals())
+# def homepage_search(request):
+#     user = request.user if request.user.is_authenticated() else None
+#     form = BookForm()
+#
+#     BookName = request.GET['BookName']
+#     BookType = request.GET['BookDec']
+#     if BookType == '所有':
+#         jobs = bookList.objects.filter(job_name__contains=BookName, isGetDetail=1)
+#     else:
+#         jobs = bookList.objects.filter(job_name__contains=BookName, job_dec=BookType)
+#     return render(request, 'mainpage/index.html', locals())
 
 def signup(request):
     # if request.user.is_authenticated():  # 已经登陆过的账号
@@ -152,7 +154,7 @@ def my_login(request):
 
 def logout(request):
     auth.logout(request)
-    return HttpResponseRedirect(reverse('homepage'))
+    return HttpResponseRedirect(reverse('login'))
 
 @login_required  # django内置用法，只有登录过的才可以浏览，如果还没有登录就进行访问，就先登录括号中的网址。
 def set_password(request):
@@ -184,7 +186,7 @@ def myInfo(request):
     user = request.user
     return render(request, 'mainpage/info.html', locals())
 def get_wordcloud():
-    conn = MySQLdb.connect(host='localhost', port=3306, user='root', passwd='xu332230', db='test2', charset='utf8')
+    conn = MySQLdb.connect(host='localhost', port=3306, user='root', passwd='123456', db='test2', charset='utf8')
     curs = conn.cursor()
     sql1 = '''select book_comm1,book_comm2,book_comm3,book_comm4,book_comm5 from  django_web_booklist'''  # sql语句
     curs.execute(sql1)
@@ -225,12 +227,12 @@ def homepage_search(request):
     # books = bookList.objects.filter(id=26836970)
     else:
         books = bookList.objects.filter(book_name=BookName, kind=BookType)
+    print(books[0]);
 
     return render(request, 'mainpage/index.html', locals())
 def book_detail(request, bookid):
     user = request.user if request.user.is_authenticated() else None
     form = BookForm()
-
     books_detail = bookList.objects.filter(id=bookid)
     book_detail_name= books_detail[0]
     # print("----------------------")

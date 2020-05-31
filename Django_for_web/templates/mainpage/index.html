@@ -37,6 +37,7 @@
                         <option value="儿童文学">儿童文学</option>
                         <option value="古典文学">古典文学</option>
                         <option value="余华">余华</option>
+                        <option value="余华">余华</option>
                         <option value="鲁迅">鲁迅</option>
                         <option value="诗词">诗词</option>
                         <option value="张爱玲">张爱玲</option>
@@ -60,7 +61,7 @@
                 <div class="tab-pane fade" id="data">
                     <div class="row">
                         <div class="col-md-9">
-                            <div id="main" style="width: 1080px;height:640px;"></div>
+                            <div id="main" style="width: 960px;height:640px;"></div>
                             <script type="text/javascript">
                                 var myChart = echarts.init(document.getElementById('main'));
                                 var data = [
@@ -68,6 +69,9 @@
                                         [{{ book.book_rating_num|floatformat }}, {{ book.book_score|floatformat }}, {{ book.book_stars5|floatformat }}, '{{ book.kind }}', 1990]
                                         {% if not forloop.last %}, {% endif %}{% endfor %}],
                                     [{% for book in books_foreign %}
+                                        [{{ book.book_rating_num|floatformat }}, {{ book.book_score|floatformat }}, {{ book.book_stars5|floatformat }}, '{{ book.kind }}', 2015]
+                                        {% if not forloop.last %}, {% endif %}{% endfor %}],
+                                    [{% for book in books_code %}
                                         [{{ book.book_rating_num|floatformat }}, {{ book.book_score|floatformat }}, {{ book.book_stars5|floatformat }}, '{{ book.kind }}', 2015]
                                         {% if not forloop.last %}, {% endif %}{% endfor %}]
                                 ];
@@ -105,7 +109,7 @@
                                     },
                                     legend: {
                                         right: 10,
-                                        data: ['小说', '外国文学']
+                                        data: ['小说', '外国文学','编程']
                                     },
                                     xAxis: {
                                         name: '评论数（条）',
@@ -181,6 +185,36 @@
                                                 }, {
                                                     offset: 1,
                                                     color: 'rgb(25, 183, 207)'
+                                                }])
+                                            }
+                                        }
+                                    },{
+                                        name: '编程',
+                                        data: data[2],
+                                        type: 'scatter',
+                                        symbolSize: function (data) {
+                                            return Math.pow(data[2] + 2, 3) / 5000;
+                                        },
+                                        label: {
+                                            emphasis: {
+                                                show: true,
+                                                formatter: function (param) {
+                                                    return param.data[3];
+                                                },
+                                                position: 'top'
+                                            }
+                                        },
+                                        itemStyle: {
+                                            normal: {
+                                                shadowBlur: 10,
+                                                shadowColor: 'rgba(25, 100, 150, 0.5)',
+                                                shadowOffsetY: 5,
+                                                color: new echarts.graphic.RadialGradient(0.4, 0.3, 1, [{
+                                                    offset: 0,
+                                                    color: 'rgb(123, 127, 218)'
+                                                }, {
+                                                    offset: 1,
+                                                    color: 'rgb(125, 83, 107)'
                                                 }])
                                             }
                                         }

@@ -37,7 +37,7 @@ urlpatterns = [
     url(r'^accounts/info/$', views.myInfo, name='info'),
     url(r'^$', views.homepage, name='homepage'),  # 此行一定放在job_list行之上，否则出错
     url(r'^job/search/$', views.homepage_search, name='homepage_search'),
-    url(r'^job_detail/(.+?)/$', views.book_detail, name='book_detail'),
+    url(r'^job_detail/(.+?)/$', views.book_detail, name='book_detail'),#http://127.0.0.1:8080/job_detail/1000856/
     # url(r'^job/(.+?)$', views.showjobs, name='job_list'),
     # url(r'^job_detail/(.+?)$', views.show_job_detail, name='job_detail'),
 

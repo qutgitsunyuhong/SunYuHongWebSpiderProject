@@ -2,7 +2,9 @@
 """Django's command-line utility for administrative tasks."""
 import os
 import sys
-
+import django
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "untitled2.settings")# project_name 项目名称
+django.setup()
 
 def main():
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'untitled2.settings')
