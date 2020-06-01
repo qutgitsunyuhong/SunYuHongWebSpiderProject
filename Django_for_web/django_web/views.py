@@ -185,6 +185,7 @@ def set_password(request):
 def myInfo(request):
     user = request.user
     return render(request, 'mainpage/info.html', locals())
+#词云
 def get_wordcloud():
     conn = MySQLdb.connect(host='localhost', port=3306, user='root', passwd='123456', db='test2', charset='utf8')
     curs = conn.cursor()
@@ -196,8 +197,8 @@ def get_wordcloud():
     for i in row:
         i = list(i)  # 将元祖的每个元素转换为列表
         new = str(i[0])  # 将列表转换为字符串
-        xx = ' '.join(jieba.cut(new))  # 每一段字符串进行分词
-        yy = xx.split(' ')
+        xx = ' '.join(jieba.cut(new))  # 每一段字符串进行分词；join能让我们将指定字符添加至字符串中
+        yy = xx.split(' ')#split()能让我们用指定字符分割字符串
         for j in yy:
             data.append(j)  # 追加写入data列表，得到的数据格式为：a=['我 爱 学习 我 喜欢 北京']
 
@@ -219,26 +220,27 @@ def get_wordcloud():
 def homepage_search(request):
     user = request.user if request.user.is_authenticated() else None
     form = BookForm()
-
+    Count = VisitNumber.objects.filter(id=1)
+    Count_num = Count[0].count
     BookName = request.GET['BookName']
     BookType = request.GET['BookType']
     if BookType == '所有':
-        books = bookList.objects.filter(book_name=BookName)
+        books = bookList.objects.filter(book_name__icontains=BookName)
     # books = bookList.objects.filter(id=26836970)
     else:
-        books = bookList.objects.filter(book_name=BookName, kind=BookType)
-    print(books[0]);
+        books = bookList.objects.filter(book_name__icontains=BookName, kind=BookType)
+    print(books[0])
 
     return render(request, 'mainpage/index.html', locals())
 def book_detail(request, bookid):
     user = request.user if request.user.is_authenticated() else None
     form = BookForm()
     books_detail = bookList.objects.filter(id=bookid)
-    book_detail_name= books_detail[0]
+    book_detail_name= books_detail[0] #返回一本书的相关信息
     # print("----------------------")
     # print(books_detail)
     # print("----------------------")
-    total_book = bookList.objects.filter()
+    total_book = bookList.objects.filter()#全选数据库中的书
 
     # 0-6
     book_socre_0_6 = bookList.objects.filter(book_score__range =[0, 6])
@@ -259,19 +261,19 @@ def book_detail(request, bookid):
     print(book_socre_0_6_num,book_socre_6_7_num,book_socre_7_8_num,book_socre_8_9_num,book_socre_9_10_num)
     print("----------------------")
     print(book_detail_name.book_stars5, book_detail_name.book_stars4, book_detail_name.book_stars3, book_detail_name.book_stars2, book_detail_name.book_stars1)
-    content = {
-            'user': 'user',
-            'job_detail': 'job_detail',
-            'job_name': 'job_name',
-            'job_first_label': 'job_first_label',
-            'job_second_label': 'job_second_label',
-            'data': 'data',
-            'learn': 'learn',
-            'keyWord': 'keyWord',
-            'workYear': 'workYear',
-            'keyWordCloud': 'keyWordCloud',
-            'education': 'education',
-        }
+    # content = {
+    #         'user': 'user',
+    #         'job_detail': 'job_detail',
+    #         'job_name': 'job_name',
+    #         'job_first_label': 'job_first_label',
+    #         'job_second_label': 'job_second_label',
+    #         'data': 'data',
+    #         'learn': 'learn',
+    #         'keyWord': 'keyWord',
+    #         'workYear': 'workYear',
+    #         'keyWordCloud': 'keyWordCloud',
+    #         'education': 'education',
+    #     }
     my_dict = get_wordcloud()
     print(my_dict)
     return render(request,'mainpage/job_detail.html',locals())

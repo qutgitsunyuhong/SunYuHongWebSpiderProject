@@ -17,6 +17,7 @@
                     <li><p class="navbar-text">欢迎你&nbsp;&nbsp;<a id="base_name" href={% url 'info' %}>{{ user.username }}</a></p>
                     </li>
                     <li><a href="{% url 'signup' %}"><span class="glyphicon glyphicon-user"></span>注册</a></li>
+                    <li><a href="{% url 'login' %}"><span class="glyphicon glyphicon-log-in"></span>登录</a></li>
                     <li><a href={% url 'logout' %}>注销</a></li>
                     <li><a href={% url 'set_password' %}>修改密码</a></li>
                 {% else %}
@@ -26,7 +27,7 @@
                 <li><a href="#">关于</a></li>
             </ul>
             <form class="navbar-form navbar-right">
-                <input type="text" class="form-control" placeholder="Search...">
+{#                <input type="text" class="form-control" placeholder="Search...">#}
             </form>
         </div>
     </div>
