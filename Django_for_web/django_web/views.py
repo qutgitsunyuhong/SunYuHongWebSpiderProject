@@ -25,7 +25,7 @@ import jieba
 import csv
 from collections import Counter
 
-# 自定义的函数，不是视图
+# 更新访问量
 def change_info(request):  # 修改网站访问量和访问ip等信息
     # 每一次访问，网站总访问次数加一
     count_nums = VisitNumber.objects.filter(id=1)
@@ -73,13 +73,14 @@ def change_info(request):  # 修改网站访问量和访问ip等信息
 
 def homepage(request):
     user = request.user if request.user.is_authenticated() else None
-    change_info(request)
+    change_info(request)#方法被调用
     books = bookList.objects.filter()
     books_novel = bookList.objects.filter(kind='小说')
     books_foreign = bookList.objects.filter(kind='外国文学')
     # books_china=bookList.objects.filter(kind='中国文学')
     # books_children=bookList.objects.filter(kind='儿童文学')
     books_code= bookList.objects.filter(kind='编程')
+    #访问量统计
     Count = VisitNumber.objects.filter(id=1)
     Count_num=Count[0].count
     print(Count_num)
@@ -89,23 +90,8 @@ def homepage(request):
     return render(request, 'mainpage/index.html', locals())
 
 
-
-# def homepage_search(request):
-#     user = request.user if request.user.is_authenticated() else None
-#     form = BookForm()
-#
-#     BookName = request.GET['BookName']
-#     BookType = request.GET['BookDec']
-#     if BookType == '所有':
-#         jobs = bookList.objects.filter(job_name__contains=BookName, isGetDetail=1)
-#     else:
-#         jobs = bookList.objects.filter(job_name__contains=BookName, job_dec=BookType)
-#     return render(request, 'mainpage/index.html', locals())
-
 def signup(request):
-    # if request.user.is_authenticated():  # 已经登陆过的账号
-    #     return HttpResponseRedirect(reverse('homepage'))
-    # state = None
+
     if request.method == 'POST':
         password = request.POST.get('password', '')
         repeat_password = request.POST.get('repeat_password', '')
@@ -151,12 +137,13 @@ def my_login(request):
         return render(request, 'mainpage/login.html', content)
     else:
         return render(request, 'mainpage/login.html')
-
+#注销
 def logout(request):
     auth.logout(request)
     return HttpResponseRedirect(reverse('login'))
 
 @login_required  # django内置用法，只有登录过的才可以浏览，如果还没有登录就进行访问，就先登录括号中的网址。
+#修改密码
 def set_password(request):
     user = request.user
     state = None
@@ -182,6 +169,7 @@ def set_password(request):
     }
     return render(request, 'mainpage/set_password.html', content)
 @login_required  # django内置用法，只有登录过的才可以浏览，如果还没有登录就进行访问，就先登录括号中的网址。
+#个人信息
 def myInfo(request):
     user = request.user
     return render(request, 'mainpage/info.html', locals())
@@ -216,7 +204,7 @@ def get_wordcloud():
         if cnt >= 180:
             break
     return truly_result
-
+#分类搜索
 def homepage_search(request):
     user = request.user if request.user.is_authenticated() else None
     form = BookForm()
@@ -224,6 +212,11 @@ def homepage_search(request):
     Count_num = Count[0].count
     BookName = request.GET['BookName']
     BookType = request.GET['BookType']
+    books_novel = bookList.objects.filter(kind='小说')
+    books_foreign = bookList.objects.filter(kind='外国文学')
+    # books_china=bookList.objects.filter(kind='中国文学')
+    # books_children=bookList.objects.filter(kind='儿童文学')
+    books_code = bookList.objects.filter(kind='编程')
     if BookType == '所有':
         books = bookList.objects.filter(book_name__icontains=BookName)
     # books = bookList.objects.filter(id=26836970)
@@ -232,6 +225,7 @@ def homepage_search(request):
     print(books[0])
 
     return render(request, 'mainpage/index.html', locals())
+#图书详情
 def book_detail(request, bookid):
     user = request.user if request.user.is_authenticated() else None
     form = BookForm()
