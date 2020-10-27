@@ -8,7 +8,7 @@ certifi==2017.11.5
 cffi==1.14.0
 chardet==3.0.4
 constantly==15.1.0
-cryptography==2.8
+cryptography==3.2
 cssselect==1.0.3
 cycler==0.10.0
 Django==1.9
