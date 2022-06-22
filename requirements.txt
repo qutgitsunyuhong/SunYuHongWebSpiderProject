@@ -27,7 +27,7 @@ matplotlib==3.2.0
 mysql==0.0.2
 mysql-connector-python==8.0.19
 mysqlclient==1.4.6
-numpy==1.18.1
+numpy==1.22.0
 olefile==0.44
 pandas==1.0.1
 parsel==1.5.2
