@@ -21,7 +21,7 @@ incremental==17.5.0
 jieba==0.42.1
 keyring==21.1.1
 kiwisolver==1.1.0
-lxml==4.5.0
+lxml==4.9.1
 matplot==0.1.9
 matplotlib==3.2.0
 mysql==0.0.2
